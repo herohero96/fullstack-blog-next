@@ -1,5 +1,18 @@
 ## Progress
 
+### Task 11: 配置 Supabase 数据库并部署到 Vercel
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - prisma/schema.prisma provider 确认为 postgresql
+  - npx prisma generate — 生成 Prisma Client 成功
+  - npx prisma db push --force-reset — schema 同步到 Supabase 成功（重置旧数据）
+  - npm run build — 构建通过 ✅（16 个路由，含 API + 页面）
+  - 创建 .env.example（不含真实密码）
+  - 确认 .gitignore 包含 .env*
+  - 更新 README.md（技术栈、本地开发、Vercel 部署说明）
+  - Vercel 部署通过 MCP 完成
+
 ### Task 10: 实现后台管理页面（用户管理）
 - Status: ✅ Completed
 - Date: 2026-02-21
