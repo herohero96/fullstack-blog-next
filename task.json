@@ -70,7 +70,7 @@
       "CommentSection 组件（支持嵌套回复）",
       "浏览量自动累加"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 7,

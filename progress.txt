@@ -1,5 +1,21 @@
 ## Progress
 
+### Task 7: 实现登录、注册页面
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - app/login/page.tsx — 登录页面（表单校验、错误提示、登录成功跳转首页）
+  - app/register/page.tsx — 注册页面（表单校验、成功提示、注册后跳转）
+  - contexts/AuthContext.tsx — 全局认证状态管理（user/token/loading/login/register/logout）
+  - 登录成功后 JWT 持久化到 localStorage（token + user）
+  - 增加受保护路由跳转机制：
+    - components/AuthGuard.tsx（客户端检测 /create /edit /admin 未登录跳转 /login）
+    - middleware.ts（服务端基于 token cookie 的受保护路径重定向）
+  - app/providers.tsx + app/layout.tsx 集成 AuthProvider
+  - 首页增加登录/注册/退出入口
+  - 构建验证：
+    - DATABASE_URL="postgresql://postgres.epzmvgcewdksftfbchaj:Jgb6r0CGSrk2Mi2K@aws-1-ap-south-1.pooler.supabase.com:5432/postgres" npm run build passes ✅
+
 ### Task 5: 实现首页和文章列表页
 - Status: ✅ Completed
 - Date: 2026-02-21
@@ -9,4 +25,3 @@
   - components/ui/Pagination.tsx — 分页组件
   - types/index.ts — 前端类型
   - 使用 webpack 构建：DATABASE_URL=... npx next build --webpack passes ✅
-
