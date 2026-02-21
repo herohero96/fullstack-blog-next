@@ -84,7 +84,7 @@ export async function POST(
 
     // 异步触发 AI 自动回复（仅顶级评论，不阻塞响应）
     if (!parentId) {
-      createAIReply(article.id, comment.id, content).catch(() => {})
+      await createAIReply(article.id, comment.id, content)
     }
 
     return NextResponse.json(comment, { status: 201 })
