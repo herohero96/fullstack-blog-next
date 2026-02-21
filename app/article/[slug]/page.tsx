@@ -7,6 +7,7 @@ import prisma from '@/lib/prisma'
 import LikeButton from '@/components/article/LikeButton'
 import CommentSection from '@/components/article/CommentSection'
 import ViewIncrement from '@/components/article/ViewIncrement'
+import ArticleQA from '@/components/article/ArticleQA'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -98,6 +99,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
         </div>
 
         <CommentSection slug={article.slug} />
+
+        <ArticleQA articleId={article.id} />
       </article>
     </div>
   )
