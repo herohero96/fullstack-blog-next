@@ -22,3 +22,14 @@
   - 支持 role（admin/user）和 status（pending/approved）
   - 安装 jose 依赖
   - npm run build passes ✅
+
+### Task 4: 实现评论、点赞、分类、标签、搜索 API
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - app/api/articles/[slug]/comments/route.ts — GET/POST/DELETE，支持嵌套回复（parentId）
+  - app/api/articles/[slug]/like/route.ts — GET 获取点赞状态，POST 点赞/取消点赞
+  - app/api/categories/route.ts — GET 分类列表，POST 创建（admin only）
+  - app/api/tags/route.ts — GET 标签列表，POST 创建（admin only）
+  - app/api/search/route.ts — 全文搜索（标题+内容，insensitive），支持 tag/category 过滤和分页
+  - npm run build passes ✅

@@ -46,7 +46,7 @@
       "app/api/tags/route.ts — 标签列表",
       "app/api/search/route.ts — 全文搜索（标题+内容）"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 5,
