@@ -1,11 +1,15 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import ArticleCard from '@/components/article/ArticleCard'
 import Pagination from '@/components/ui/Pagination'
+import AuthGuard from '@/components/AuthGuard'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Article, Category, Tag } from '@/types'
 
 export default function HomePage() {
+  const { user, isAuthenticated, logout } = useAuth()
   const [articles, setArticles] = useState<Article[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -20,10 +24,12 @@ export default function HomePage() {
     Promise.all([
       fetch('/api/categories').then((r) => r.json()),
       fetch('/api/tags').then((r) => r.json()),
-    ]).then(([cats, tgs]) => {
-      setCategories(cats)
-      setTags(tgs)
-    }).catch(() => {})
+    ])
+      .then(([cats, tgs]) => {
+        setCategories(cats)
+        setTags(tgs)
+      })
+      .catch(() => {})
   }, [])
 
   const fetchArticles = useCallback((p: number, category: string, tag: string) => {
@@ -60,14 +66,37 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <AuthGuard />
+
       <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <h1 className="text-xl font-bold text-gray-900">博客</h1>
+          <div className="flex items-center gap-3 text-sm">
+            {isAuthenticated ? (
+              <>
+                <span className="text-gray-600">你好，{user?.username}</span>
+                <button
+                  onClick={logout}
+                  className="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  退出
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">
+                  登录
+                </Link>
+                <Link href="/register" className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700">
+                  注册
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
-        {/* 分类筛选 */}
         {categories.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             <button
@@ -96,7 +125,6 @@ export default function HomePage() {
           </div>
         )}
 
-     {/* 标签筛选 */}
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {tags.map((tag) => (
@@ -115,7 +143,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* 文章列表 */}
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -133,9 +160,6 @@ export default function HomePage() {
           </div>
         ) : articles.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
             <h3 className="mt-3 text-sm font-medium text-gray-900">暂无文章</h3>
             <p className="mt-1 text-sm text-gray-500">还没有发布的文章。</p>
           </div>

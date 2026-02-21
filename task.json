@@ -70,7 +70,7 @@
       "CommentSection 组件（支持嵌套回复）",
       "浏览量自动累加"
     ],
-    "passes": true
+    "passes": false
   },
   {
     "id": 7,
@@ -82,7 +82,7 @@
       "登录后 JWT 存 localStorage",
       "未登录访问受保护页面跳转登录"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 8,
