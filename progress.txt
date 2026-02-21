@@ -1,5 +1,20 @@
 ## Progress
 
+### Task 8: 实现文章创建和编辑页面
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - app/create/page.tsx — 创建文章页面
+  - app/edit/[slug]/page.tsx — 编辑文章页面（客户端加载文章数据）
+  - components/editor/MarkdownEditor.tsx — Markdown 编辑器（编辑/预览切换、工具栏11个操作）
+  - components/article/ArticleForm.tsx — 统一表单组件（create/edit 模式）
+    - 分类下拉选择（/api/categories）
+    - 标签多选（/api/tags，toggle 按钮）
+    - 封面图 URL 输入（http/https 校验）
+    - 草稿/发布切换（checkbox）
+    - 表单校验（标题/内容必填）
+  - 构建验证：npx next build --webpack passes ✅
+
 ### Task 9: 实现搜索页、分类页、标签页
 - Status: ✅ Completed
 - Date: 2026-02-21
