@@ -34,7 +34,7 @@
       "支持 published 状态过滤",
       "关联 category、tags、author、comments、likes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 4,

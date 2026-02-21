@@ -1,5 +1,14 @@
 ## Progress
 
+### Task 3: 实现文章相关 API（CRUD、分页、slug）
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - app/api/articles/[slug]/route.ts — GET 单篇（含 category、tags、author、comments、likes）、PUT 更新（事务处理 tag/category 计数）、DELETE 删除
+  - app/api/articles/[slug]/view/route.ts — POST 浏览量累加
+  - 修复 comments/like 路由的 params Promise 类型（Next.js 16 兼容）
+  - npm run build passes ✅
+
 ### Task 1: 初始化 Next.js 项目，配置 Tailwind CSS、Prisma、Supabase
 - Status: ✅ Completed
 - Date: 2026-02-21
