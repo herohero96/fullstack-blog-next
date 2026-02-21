@@ -75,6 +75,14 @@ export default function HomePage() {
             {isAuthenticated ? (
               <>
                 <span className="text-gray-600">你好，{user?.username}</span>
+                <Link href="/create" className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700">
+                  写文章
+                </Link>
+                {user?.role === 'admin' && (
+                  <Link href="/admin/users" className="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">
+                    后台
+                  </Link>
+                )}
                 <button
                   onClick={logout}
                   className="px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
