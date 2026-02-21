@@ -1,5 +1,18 @@
 ## Progress
 
+### Task 6: 实现文章详情页
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - app/article/[slug]/page.tsx — 服务端渲染文章详情，Prisma 直接查询，含 category/tags/author
+  - Markdown 渲染：react-markdown + remark-gfm + rehype-highlight
+  - components/article/LikeButton.tsx — 点赞/取消点赞，读取 localStorage token
+  - components/article/CommentSection.tsx — 评论列表 + 发表评论 + 嵌套回复 + 删除
+  - components/article/ViewIncrement.tsx — 客户端组件，页面加载时自动 POST /api/articles/[slug]/view
+  - 构建验证：DATABASE_URL=... npm run build passes ✅
+
+
+
 ### Task 8: 实现文章创建和编辑页面
 - Status: ✅ Completed
 - Date: 2026-02-21
