@@ -22,7 +22,7 @@
       "middleware.ts — 保护需要登录的路由",
       "支持 role（admin/user）和 status（pending/approved）"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 3,

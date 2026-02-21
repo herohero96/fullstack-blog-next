@@ -11,3 +11,14 @@
   - Added `prisma generate` to build script
   - Created lib/prisma.ts with PrismaPg adapter
   - npm run build passes ✅
+
+### Task 2: 实现 JWT 认证系统（注册、登录、中间件）
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - lib/auth.ts — JWT 签发/验证工具（jose，HS256，7d 过期）
+  - app/api/auth/register/route.ts — 注册接口，bcrypt 加密，重复检查
+  - app/api/auth/login/route.ts — 登录接口，返回 JWT token
+  - 支持 role（admin/user）和 status（pending/approved）
+  - 安装 jose 依赖
+  - npm run build passes ✅
