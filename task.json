@@ -106,7 +106,7 @@
       "app/tag/[slug]/page.tsx — 标签文章列表",
       "面包屑导航"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 10,

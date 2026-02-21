@@ -1,5 +1,17 @@
 ## Progress
 
+### Task 9: 实现搜索页、分类页、标签页
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - app/search/page.tsx — 搜索结果页，防抖输入、关键词高亮、useSearchParams 包裹 Suspense boundary
+  - app/category/[slug]/page.tsx — 分类文章列表，面包屑导航，动态获取分类名
+  - app/tag/[slug]/page.tsx — 标签文章列表，面包屑导航，动态获取标签名
+  - 三页均含面包屑导航（首页 / 当前页）
+  - 构建验证：DATABASE_URL=... npm run build passes ✅
+
+
+
 ### Task 7: 实现登录、注册页面
 - Status: ✅ Completed
 - Date: 2026-02-21
