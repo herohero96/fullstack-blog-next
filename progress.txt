@@ -1,5 +1,17 @@
 ## Progress
 
+### Task 10: 实现后台管理页面（用户管理）
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - app/api/users/route.ts — GET 获取用户列表（仅 admin）
+  - app/api/users/[id]/route.ts — PATCH 更新用户状态、DELETE 删除用户（仅 admin）
+  - app/admin/users/page.tsx — 用户列表页，状态 tab 筛选，审核 pending→approved/rejected，删除非 admin 用户
+  - 非 admin 用户访问自动跳转首页
+  - 构建验证：DATABASE_URL=... npm run build passes ✅
+
+
+
 ### Task 6: 实现文章详情页
 - Status: ✅ Completed
 - Date: 2026-02-21

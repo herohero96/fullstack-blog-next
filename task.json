@@ -117,7 +117,7 @@
       "仅 admin 可访问",
       "未授权跳转首页"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "id": 11,
