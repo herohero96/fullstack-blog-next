@@ -1,5 +1,15 @@
 ## Progress
 
+### Task 12: AI 自动回复评论功能
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - lib/ai-reply.ts — 封装 Claude API 调用，生成博主风格的友好回复
+  - 修改 app/api/articles/[slug]/comments/route.ts — 用户发表顶级评论后异步触发 AI 回复
+  - 以 role=admin 的第一个用户作为博主身份
+  - AI 回复作为子评论（parentId 指向用户评论），不阻塞用户请求
+  - 构建验证：npm run build passes ✅
+
 ### Task 11: 配置 Supabase 数据库并部署到 Vercel
 - Status: ✅ Completed
 - Date: 2026-02-21

@@ -130,5 +130,17 @@
       "更新 README"
     ],
     "passes": true
+  },
+  {
+    "id": 12,
+    "description": "添加 AI 自动回复评论功能：当用户发表评论后，自动调用 Claude API 生成一条回复，以博主身份回复该评论，回复内容要结合文章内容和用户评论，语气友好自然",
+    "steps": [
+      "创建 lib/ai-reply.ts — 封装 Claude API 调用，接收文章内容和用户评论，生成友好自然的博主回复",
+      "修改 app/api/articles/[slug]/comments/route.ts — 在用户评论创建成功后，异步调用 AI 生成回复并以博主身份插入为子评论",
+      "确保博主账号存在（取 role=admin 的第一个用户作为博主身份）",
+      "AI 回复作为该评论的 reply（parentId 指向用户评论），避免阻塞用户请求",
+      "npm run lint && npm run build 通过"
+    ],
+    "passes": true
   }
 ]
