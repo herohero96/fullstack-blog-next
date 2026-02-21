@@ -1,44 +1,12 @@
 ## Progress
 
-### Task 3: 实现文章相关 API（CRUD、分页、slug）
+### Task 5: 实现首页和文章列表页
 - Status: ✅ Completed
 - Date: 2026-02-21
 - Details:
-  - app/api/articles/[slug]/route.ts — GET 单篇（含 category、tags、author、comments、likes）、PUT 更新（事务处理 tag/category 计数）、DELETE 删除
-  - app/api/articles/[slug]/view/route.ts — POST 浏览量累加
-  - 修复 comments/like 路由的 params Promise 类型（Next.js 16 兼容）
-  - npm run build passes ✅
+  - app/page.tsx — 首页展示最新文章列表（分页 + 分类/标签筛选）
+  - components/article/ArticleCard.tsx — 展示标题、摘要、分类、标签、时间、浏览量/计数
+  - components/ui/Pagination.tsx — 分页组件
+  - types/index.ts — 前端类型
+  - 使用 webpack 构建：DATABASE_URL=... npx next build --webpack passes ✅
 
-### Task 1: 初始化 Next.js 项目，配置 Tailwind CSS、Prisma、Supabase
-- Status: ✅ Completed
-- Date: 2026-02-21
-- Details:
-  - Created Next.js 15 project with TypeScript + Tailwind CSS + App Router
-  - Installed prisma, @prisma/client, @prisma/adapter-pg, next-auth, bcryptjs, zod, pg
-  - Configured prisma/schema.prisma with 7 models (Category, Tag, User, Article, Comment, ArticleTag, Like)
-  - Configured prisma.config.ts with DATABASE_URL from environment variable
-  - Added `prisma generate` to build script
-  - Created lib/prisma.ts with PrismaPg adapter
-  - npm run build passes ✅
-
-### Task 2: 实现 JWT 认证系统（注册、登录、中间件）
-- Status: ✅ Completed
-- Date: 2026-02-21
-- Details:
-  - lib/auth.ts — JWT 签发/验证工具（jose，HS256，7d 过期）
-  - app/api/auth/register/route.ts — 注册接口，bcrypt 加密，重复检查
-  - app/api/auth/login/route.ts — 登录接口，返回 JWT token
-  - 支持 role（admin/user）和 status（pending/approved）
-  - 安装 jose 依赖
-  - npm run build passes ✅
-
-### Task 4: 实现评论、点赞、分类、标签、搜索 API
-- Status: ✅ Completed
-- Date: 2026-02-21
-- Details:
-  - app/api/articles/[slug]/comments/route.ts — GET/POST/DELETE，支持嵌套回复（parentId）
-  - app/api/articles/[slug]/like/route.ts — GET 获取点赞状态，POST 点赞/取消点赞
-  - app/api/categories/route.ts — GET 分类列表，POST 创建（admin only）
-  - app/api/tags/route.ts — GET 标签列表，POST 创建（admin only）
-  - app/api/search/route.ts — 全文搜索（标题+内容，insensitive），支持 tag/category 过滤和分页
-  - npm run build passes ✅
