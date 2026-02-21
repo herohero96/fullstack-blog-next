@@ -1,0 +1,13 @@
+## Progress
+
+### Task 1: 初始化 Next.js 项目，配置 Tailwind CSS、Prisma、Supabase
+- Status: ✅ Completed
+- Date: 2026-02-21
+- Details:
+  - Created Next.js 15 project with TypeScript + Tailwind CSS + App Router
+  - Installed prisma, @prisma/client, @prisma/adapter-pg, next-auth, bcryptjs, zod, pg
+  - Configured prisma/schema.prisma with 7 models (Category, Tag, User, Article, Comment, ArticleTag, Like)
+  - Configured prisma.config.ts with DATABASE_URL from environment variable
+  - Added `prisma generate` to build script
+  - Created lib/prisma.ts with PrismaPg adapter
+  - npm run build passes ✅
