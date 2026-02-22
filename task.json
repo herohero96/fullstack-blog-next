@@ -128,6 +128,37 @@
       ],
       "status": "done",
       "dependsOn": ["8"]
+    },
+    {
+      "id": "10",
+      "title": "AI 助手 UI 全面改造：悬浮按钮 + 右侧抽屉 + 气泡提示",
+      "description": "重写 components/AIChatWidget.tsx，全面升级 UI 体验",
+      "steps": [
+        "悬浮按钮：渐变背景 from-blue-500 to-purple-600，🤖 emoji 图标，w-14 h-14 圆形，shadow-xl，hover:scale-110 动效",
+        "改为右侧抽屉：点击按钮从右侧滑出（fixed right-0 top-0 h-full w-96），translate-x 滑动动画 duration-300",
+        "抽屉外半透明黑色遮罩，点击遮罩关闭",
+        "抽屉顶部标题栏：'AI 助手' + 清空按钮 + 关闭按钮",
+        "中间消息列表自动滚动到底部",
+        "底部输入区固定：textarea 支持多行输入 + 发送按钮",
+        "首次进入页面气泡提示：localStorage 记录是否已显示，首次显示 '👋 有问题？问 AI 助手吧！'，3 秒后自动消失",
+        "npm run build 通过"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "11",
+      "title": "Playwright 测试 AI 助手 UI 改造",
+      "description": "编写 tests/ai-chat-ui-v2.spec.ts，E2E 测试 AI 助手 UI 改造效果",
+      "steps": [
+        "打开首页截图保存悬浮按钮样式",
+        "验证气泡提示出现（首次访问）",
+        "点击按钮验证抽屉从右侧滑出",
+        "截图保存抽屉样式",
+        "点击遮罩验证抽屉关闭",
+        "截图保存关闭后状态"
+      ],
+      "status": "pending",
+      "dependsOn": ["10"]
     }
   ]
 }
