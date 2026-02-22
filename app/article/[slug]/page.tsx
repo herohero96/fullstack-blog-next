@@ -98,9 +98,9 @@ export default async function ArticleDetailPage({ params }: PageProps) {
           <LikeButton slug={article.slug} />
         </div>
 
-        <CommentSection slug={article.slug} />
-
         <ArticleQA articleId={article.id} />
+
+        <CommentSection slug={article.slug} />
       </article>
     </div>
   )
