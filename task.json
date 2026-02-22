@@ -1,146 +1,24 @@
-[
-  {
-    "id": 1,
-    "description": "初始化 Next.js 项目，配置 Tailwind CSS、Prisma、Supabase",
-    "steps": [
-      "create-next-app 创建项目（TypeScript + Tailwind + App Router）",
-      "安装 prisma、@prisma/client、@prisma/adapter-pg、next-auth、bcryptjs、zod",
-      "配置 prisma/schema.prisma，迁移原有7个模型（Category、Tag、User、Article、Comment、ArticleTag、Like）",
-      "DATABASE_URL 从环境变量读取",
-      "package.json build 命令加 prisma generate",
-      "npm run build 通过"
-    ],
-    "passes": true
-  },
-  {
-    "id": 2,
-    "description": "实现 JWT 认证系统（注册、登录、中间件）",
-    "steps": [
-      "app/api/auth/register/route.ts — 注册接口，bcrypt 加密密码",
-      "app/api/auth/login/route.ts — 登录接口，返回 JWT token",
-      "lib/auth.ts — JWT 签发和验证工具函数",
-      "middleware.ts — 保护需要登录的路由",
-      "支持 role（admin/user）和 status（pending/approved）"
-    ],
-    "passes": true
-  },
-  {
-    "id": 3,
-    "description": "实现文章相关 API（CRUD、分页、slug）",
-    "steps": [
-      "app/api/articles/route.ts — 获取文章列表（分页、分类、标签过滤）",
-      "app/api/articles/[slug]/route.ts — 获取单篇、更新、删除",
-      "app/api/articles/[slug]/view/route.ts — 浏览量累加",
-      "支持 published 状态过滤",
-      "关联 category、tags、author、comments、likes"
-    ],
-    "passes": true
-  },
-  {
-    "id": 4,
-    "description": "实现评论、点赞、分类、标签、搜索 API",
-    "steps": [
-      "app/api/articles/[slug]/comments/route.ts — 评论 CRUD，支持嵌套回复",
-      "app/api/articles/[slug]/like/route.ts — 点赞/取消点赞",
-      "app/api/categories/route.ts — 分类列表",
-      "app/api/tags/route.ts — 标签列表",
-      "app/api/search/route.ts — 全文搜索（标题+内容）"
-    ],
-    "passes": true
-  },
-  {
-    "id": 5,
-    "description": "实现首页和文章列表页",
-    "steps": [
-      "app/page.tsx — 首页，展示最新文章列表",
-      "ArticleCard 组件 — 标题、摘要、分类、标签、时间、浏览量",
-      "分页组件",
-      "分类/标签筛选",
-      "响应式布局"
-    ],
-    "passes": true
-  },
-  {
-    "id": 6,
-    "description": "实现文章详情页",
-    "steps": [
-      "app/article/[slug]/page.tsx — 文章详情",
-      "Markdown 渲染（react-markdown + remark-gfm + rehype-highlight）",
-      "LikeButton 组件",
-      "CommentSection 组件（支持嵌套回复）",
-      "浏览量自动累加"
-    ],
-    "passes": true
-  },
-  {
-    "id": 7,
-    "description": "实现登录、注册页面",
-    "steps": [
-      "app/login/page.tsx — 登录页",
-      "app/register/page.tsx — 注册页",
-      "AuthContext — 全局登录状态管理",
-      "登录后 JWT 存 localStorage",
-      "未登录访问受保护页面跳转登录"
-    ],
-    "passes": true
-  },
-  {
-    "id": 8,
-    "description": "实现文章创建和编辑页面",
-    "steps": [
-      "app/create/page.tsx — 创建文章",
-      "app/edit/[slug]/page.tsx — 编辑文章",
-      "Markdown 编辑器（编辑/预览切换，工具栏）",
-      "分类、标签选择",
-      "封面图 URL 输入",
-      "草稿/发布切换"
-    ],
-    "passes": true
-  },
-  {
-    "id": 9,
-    "description": "实现搜索页、分类页、标签页",
-    "steps": [
-      "app/search/page.tsx — 搜索结果页，关键词高亮",
-      "app/category/[slug]/page.tsx — 分类文章列表",
-      "app/tag/[slug]/page.tsx — 标签文章列表",
-      "面包屑导航"
-    ],
-    "passes": true
-  },
-  {
-    "id": 10,
-    "description": "实现后台管理页面（用户管理）",
-    "steps": [
-      "app/admin/users/page.tsx — 用户列表",
-      "审核用户（pending → approved）",
-      "仅 admin 可访问",
-      "未授权跳转首页"
-    ],
-    "passes": true
-  },
-  {
-    "id": 11,
-    "description": "配置 Supabase 数据库并部署到 Vercel",
-    "steps": [
-      "prisma db push 同步到 Supabase",
-      "创建 GitHub 仓库并推送",
-      "Vercel 导入项目，配置 DATABASE_URL 环境变量",
-      "确保生产环境构建成功",
-      "更新 README"
-    ],
-    "passes": true
-  },
-  {
-    "id": 12,
-    "description": "添加 AI 自动回复评论功能：当用户发表评论后，自动调用 Claude API 生成一条回复，以博主身份回复该评论，回复内容要结合文章内容和用户评论，语气友好自然",
-    "steps": [
-      "创建 lib/ai-reply.ts — 封装 Claude API 调用，接收文章内容和用户评论，生成友好自然的博主回复",
-      "修改 app/api/articles/[slug]/comments/route.ts — 在用户评论创建成功后，异步调用 AI 生成回复并以博主身份插入为子评论",
-      "确保博主账号存在（取 role=admin 的第一个用户作为博主身份）",
-      "AI 回复作为该评论的 reply（parentId 指向用户评论），避免阻塞用户请求",
-      "npm run lint && npm run build 通过"
-    ],
-    "passes": true
-  }
-]
+{
+  "tasks": [
+    {
+      "id": "1",
+      "title": "数据库 schema 更新",
+      "description": "在 prisma/schema.prisma 的 Comment 模型里新增 guestName 字段（String? 可空），authorId 改为可空（Int?）。然后运行 npx prisma generate 生成新的客户端。注意：不要运行 prisma migrate，只运行 prisma generate。",
+      "status": "pending"
+    },
+    {
+      "id": "2",
+      "title": "评论 API 支持游客",
+      "description": "修改 app/api/articles/[slug]/comments/route.ts 的 POST 接口：1. 支持游客评论，请求体新增 guestName 字段；2. 未登录时 guestName 必填（2-20字），已登录时忽略 guestName；3. IP 限流：同一 IP 每分钟最多 3 条评论，超出返回 429；4. 内容长度限制 1-500 字；5. 游客评论 authorId 为 null，guestName 存入数据库；6. 游客评论同样触发 AI 自动回复（createAIReply）。GET 接口返回评论时带上 guestName 字段。",
+      "status": "pending",
+      "dependsOn": ["1"]
+    },
+    {
+      "id": "3",
+      "title": "前端评论组件更新",
+      "description": "修改 components/article/CommentSection.tsx：1. 判断用户是否登录（从 AuthContext 获取）；2. 未登录时显示昵称输入框（必填，placeholder='你的昵称'）和评论内容框；3. 已登录时和现在一样，不显示昵称框；4. 评论列表展示时，游客评论（authorId 为 null）显示 guestName + '（游客）' 标识，用不同颜色区分；5. 提交时把 guestName 带入请求体。",
+      "status": "pending",
+      "dependsOn": ["2"]
+    }
+  ]
+}

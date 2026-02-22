@@ -5,6 +5,20 @@ import { createAIReply } from '@/lib/ai-reply'
 
 const authorSelect = { id: true, username: true }
 
+// 简易 IP 限流：同一 IP 每分钟最多 3 条评论
+const ipTimestamps = new Map<string, number[]>()
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const window = 60_000 // 1 分钟
+  const limit = 3
+  const timestamps = ipTimestamps.get(ip)?.filter((t) => now - t < window) ?? []
+  if (timestamps.length >= limit) return false
+  timestamps.push(now)
+  ipTimestamps.set(ip, timestamps)
+  return true
+}
+
 // GET /api/articles/[slug]/comments
 export async function GET(
   req: NextRequest,
@@ -43,10 +57,6 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const token = getTokenFromHeader(req.headers.get('authorization'))
-    if (!token) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-
-    const user = await verifyToken(token)
     const { slug } = await params
 
     const article = await prisma.article.findUnique({
@@ -55,11 +65,39 @@ export async function POST(
     })
     if (!article) return NextResponse.json({ message: '文章不存在' }, { status: 404 })
 
-    const body = await req.json()
-    const { content, parentId } = body
+    // 解析登录状态（可选）
+    const token = getTokenFromHeader(req.headers.get('authorization'))
+    let userId: number | null = null
+    if (token) {
+      try {
+        const user = await verifyToken(token)
+        userId = user.userId
+      } catch {
+        // token 无效，当作游客处理
+      }
+    }
 
-    if (!content?.trim()) {
-      return NextResponse.json({ message: '评论内容不能为空' }, { status: 400 })
+    const body = await req.json()
+    const { content, parentId, guestName } = body
+
+    // 内容长度限制 1-500 字
+    const trimmed = content?.trim() ?? ''
+    if (!trimmed || trimmed.length > 500) {
+      return NextResponse.json({ message: '评论内容需在 1-500 字之间' }, { status: 400 })
+    }
+
+    // 游客必须提供昵称
+    if (!userId) {
+      const name = guestName?.trim() ?? ''
+      if (name.length < 2 || name.length > 20) {
+        return NextResponse.json({ message: '游客昵称需在 2-20 字之间' }, { status: 400 })
+      }
+    }
+
+    // IP 限流
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json({ message: '评论过于频繁，请稍后再试' }, { status: 429 })
     }
 
     if (parentId) {
@@ -71,9 +109,10 @@ export async function POST(
 
     const comment = await prisma.comment.create({
       data: {
-        content,
+        content: trimmed,
         articleId: article.id,
-        authorId: user.userId,
+        authorId: userId,
+        guestName: userId ? null : guestName?.trim(),
         parentId: parentId || null,
       },
       include: {
@@ -84,7 +123,7 @@ export async function POST(
 
     // 异步触发 AI 自动回复（仅顶级评论，不阻塞响应）
     if (!parentId) {
-      await createAIReply(article.id, comment.id, content)
+      createAIReply(article.id, comment.id, trimmed).catch(() => {})
     }
 
     return NextResponse.json(comment, { status: 201 })
