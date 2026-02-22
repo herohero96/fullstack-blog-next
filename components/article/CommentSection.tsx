@@ -54,7 +54,7 @@ export default function CommentSection({ slug }: CommentSectionProps) {
       const data = await fetchComments()
       // 统计所有评论（含回复）总数
       const totalNow = (data ?? []).reduce((sum: number, c: CommentItem) => sum + 1 + c.replies.length, 0)
-      if (totalNow > beforeCount || attempts >= 3) {
+      if (totalNow > beforeCount || attempts >= 5) {
         if (pollTimerRef.current) clearInterval(pollTimerRef.current)
         pollTimerRef.current = null
       }
