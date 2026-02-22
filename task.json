@@ -19,6 +19,42 @@
       "description": "修改 components/article/CommentSection.tsx：1. 判断用户是否登录（从 AuthContext 获取）；2. 未登录时显示昵称输入框（必填，placeholder='你的昵称'）和评论内容框；3. 已登录时和现在一样，不显示昵称框；4. 评论列表展示时，游客评论（authorId 为 null）显示 guestName + '（游客）' 标识，用不同颜色区分；5. 提交时把 guestName 带入请求体。",
       "status": "pending",
       "dependsOn": ["2"]
+    },
+    {
+      "id": "4",
+      "title": "创建 AI 助手后端 API",
+      "description": "新建 app/api/chat/route.ts，实现博客 AI 助手聊天接口",
+      "steps": [
+        "新建 app/api/chat/route.ts，导出 POST 处理函数",
+        "接收 JSON 请求体中的 messages 数组（{ role: string, content: string }[]），支持多轮对话",
+        "使用环境变量 ANTHROPIC_BASE_URL 和 ANTHROPIC_AUTH_TOKEN 调用 Claude API",
+        "模型使用 claude-sonnet-4-6",
+        "添加系统提示词：说明这是一个博客 AI 助手，可以帮助用户解答博客内容相关问题、写作建议等",
+        "流式返回响应（SSE），将 Claude API 的 stream 直接转发给客户端",
+        "参数校验：messages 不能为空，每条消息需有 role 和 content",
+        "错误处理：Claude API 调用失败时返回合适的错误响应",
+        "npm run build 通过"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "5",
+      "title": "创建 AI 助手前端组件",
+      "description": "新建 components/AIChatWidget.tsx，实现全局 AI 助手悬浮对话组件",
+      "steps": [
+        "新建 components/AIChatWidget.tsx，'use client' 客户端组件",
+        "右下角悬浮按钮（固定定位），点击展开/收起对话框",
+        "对话框包含：标题栏（标题 + 清空按钮 + 关闭按钮）、消息列表区域、输入框 + 发送按钮",
+        "支持多轮对话：维护 messages 状态数组，每次发送带上完整历史",
+        "调用 /api/chat 接口，流式读取 SSE 响应，实现打字机效果逐字显示 AI 回复",
+        "清空对话功能：点击清空按钮重置 messages 数组",
+        "游客可用，无需登录即可使用",
+        "消息列表自动滚动到底部",
+        "在 app/layout.tsx 或 app/providers.tsx 中全局引入该组件，使其在所有页面可见",
+        "npm run build 通过"
+      ],
+      "status": "done",
+      "dependsOn": ["4"]
     }
   ]
 }
