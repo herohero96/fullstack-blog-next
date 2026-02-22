@@ -133,12 +133,12 @@ export async function POST(
       author: comment.author,
     })
 
-    // 异步触发 AI 自动回复（仅顶级评论，不阻塞响应）
+    // 先返回评论，再等待 AI 自动回复（Vercel Serverless 需要 await，否则进程提前结束）
+    const response = NextResponse.json(comment, { status: 201 })
     if (!parentId) {
-      createAIReply(article.id, comment.id, trimmed).catch(() => {})
+      await createAIReply(article.id, comment.id, trimmed).catch(() => {})
     }
-
-    return NextResponse.json(comment, { status: 201 })
+    return response
   } catch (error) {
     console.error('Failed to create comment:', error)
     return NextResponse.json({ message: '创建评论失败' }, { status: 500 })
