@@ -70,7 +70,7 @@
         "运行 npx prisma generate 生成客户端",
         "npm run build 通过"
       ],
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "7",
@@ -90,7 +90,7 @@
         "脚本可通过 npx tsx scripts/build-knowledge-graph.ts 运行",
         "npm run build 通过"
       ],
-      "status": "pending",
+      "status": "done",
       "dependsOn": ["6"]
     },
     {
@@ -108,7 +108,7 @@
         "如果向量搜索失败（如文章无 embedding），降级为无检索模式继续回答",
         "npm run build 通过"
       ],
-      "status": "pending",
+      "status": "done",
       "dependsOn": ["7"]
     },
     {
@@ -126,7 +126,7 @@
         "截图保存完整对话页面",
         "测试超时设置 180 秒"
       ],
-      "status": "pending",
+      "status": "done",
       "dependsOn": ["8"]
     }
   ]
