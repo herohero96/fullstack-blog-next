@@ -55,6 +55,79 @@
       ],
       "status": "done",
       "dependsOn": ["4"]
+    },
+    {
+      "id": "6",
+      "title": "开启 pgvector 插件并更新数据库 schema",
+      "description": "扩展 Prisma schema 以支持知识图谱和文章向量嵌入",
+      "steps": [
+        "创建 scripts/enable-pgvector.sql，内容为 CREATE EXTENSION IF NOT EXISTS vector",
+        "在 prisma/schema.prisma 的 Article 模型新增 embedding Unsupported('vector(1024)')? 字段",
+        "新建 ConceptNode 模型：id(自增主键), name(String, unique), type(String), description(String, 默认空)",
+        "新建 ArticleConcept 模型：articleId(Int), conceptId(Int), relation(String)，联合主键 [articleId, conceptId]，关联 Article 和 ConceptNode",
+        "新建 ArticleRelation 模型：id(自增主键), fromId(Int), toId(Int), type(String, 枚举值 PREREQUISITE/RELATED/SERIES)，关联两篇 Article",
+        "运行 npx prisma db push 同步数据库",
+        "运行 npx prisma generate 生成客户端",
+        "npm run build 通过"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "7",
+      "title": "创建知识图谱建库脚本",
+      "description": "新建 scripts/build-knowledge-graph.ts，自动构建文章知识图谱和向量嵌入",
+      "steps": [
+        "读取所有已发布文章（published: true）",
+        "提取每篇文章结尾的小结段落（匹配最后一个 ## 小结 标题后的内容）",
+        "调用 Voyage AI 生成小结的 embedding（VOYAGE_API_KEY 环境变量，model: voyage-3，endpoint: https://api.voyageai.com/v1/embeddings）",
+        "将 embedding 通过 raw SQL 存入 Article.embedding 字段",
+        "调用 claude-sonnet-4-6（ANTHROPIC_BASE_URL + ANTHROPIC_AUTH_TOKEN）分析每篇文章，提取 3-5 个概念节点（技术名词）",
+        "将概念节点 upsert 到 ConceptNode 表（name 去重）",
+        "建立 ArticleConcept 关联（articleId + conceptId + relation）",
+        "解析文章标题中的系列编号（一、二、三、四、五），自动建立同系列文章间的 SERIES 关系",
+        "同系列中编号较小的文章作为 PREREQUISITE 指向编号较大的文章",
+        "将关系存入 ArticleRelation 表",
+        "脚本可通过 npx tsx scripts/build-knowledge-graph.ts 运行",
+        "npm run build 通过"
+      ],
+      "status": "pending",
+      "dependsOn": ["6"]
+    },
+    {
+      "id": "8",
+      "title": "改造 AI 助手 API 支持知识图谱检索",
+      "description": "改造 app/api/chat/route.ts，基于知识图谱和向量检索增强 AI 助手回答质量",
+      "steps": [
+        "用户提问时，取最新一条 user 消息，调用 Voyage AI（voyage-3）生成问题 embedding",
+        "用 pgvector 相似度搜索找 Top3 相关文章：SELECT id, title, content, slug FROM \"Article\" WHERE embedding IS NOT NULL ORDER BY embedding <=> $1 LIMIT 3",
+        "查询这些文章的前置知识关系：从 ArticleRelation 表查 type=PREREQUISITE 的关联文章标题",
+        "查询同系列文章：从 ArticleRelation 表查 type=SERIES 的关联文章标题",
+        "查询关联概念：从 ArticleConcept + ConceptNode 表查每篇文章的概念节点",
+        "拼装系统提示词：博客简介 + 所有已发布文章标题列表 + Top3 相关文章全文内容 + 图谱关联信息（前置知识、系列文章、概念节点）",
+        "调用 claude-sonnet-4-6 流式回答，保持 SSE 转发逻辑不变",
+        "如果向量搜索失败（如文章无 embedding），降级为无检索模式继续回答",
+        "npm run build 通过"
+      ],
+      "status": "pending",
+      "dependsOn": ["7"]
+    },
+    {
+      "id": "9",
+      "title": "Playwright 测试 AI 助手知识图谱功能",
+      "description": "编写 tests/ai-chat-knowledge.spec.ts，E2E 测试 AI 助手的知识图谱检索能力",
+      "steps": [
+        "新建 tests/ai-chat-knowledge.spec.ts",
+        "打开博客首页 https://ai-news-hub-next.vercel.app",
+        "点击右下角 AI 助手悬浮按钮，等待对话框弹出",
+        "输入'你有哪些文章'并发送，等待 AI 回复完成，验证回复中包含至少一个文章标题",
+        "截图保存第一轮对话结果",
+        "输入'Claude Code 怎么入门'并发送，等待 AI 回复完成，验证回复中包含相关文章内容或推荐",
+        "截图保存第二轮对话结果",
+        "截图保存完整对话页面",
+        "测试超时设置 180 秒"
+      ],
+      "status": "pending",
+      "dependsOn": ["8"]
     }
   ]
 }

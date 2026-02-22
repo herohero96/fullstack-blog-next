@@ -57,12 +57,16 @@ model Article {
   coverImage String       @default("")
   published  Boolean      @default(false)
   viewCount  Int          @default(0)
+  embedding  Unsupported("vector(1024)")?
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
   tags       ArticleTag[]
   comments   Comment[]
   likes      Like[]
   embeddings ArticleEmbedding[]
+  concepts   ArticleConcept[]
+  relationsFrom ArticleRelation[] @relation("ArticleRelationFrom")
+  relationsTo   ArticleRelation[] @relation("ArticleRelationTo")
 }
 
 model Comment {
@@ -113,4 +117,33 @@ model ArticleEmbedding {
   createdAt  DateTime                     @default(now())
 
   @@index([articleId])
+}
+
+model ConceptNode {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  type        String
+  description String           @default("")
+  articles    ArticleConcept[]
+}
+
+model ArticleConcept {
+  articleId Int
+  conceptId Int
+  relation  String
+  article   Article     @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  concept   ConceptNode @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, conceptId])
+}
+
+model ArticleRelation {
+  id     Int     @id @default(autoincrement())
+  fromId Int
+  toId   Int
+  type   String  // PREREQUISITE, RELATED, SERIES
+  from   Article @relation("ArticleRelationFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to     Article @relation("ArticleRelationTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId, type])
 }
