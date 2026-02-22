@@ -73,8 +73,11 @@ export default function CommentSection({ slug }: CommentSectionProps) {
     function connect() {
       es = new EventSource(`/api/articles/${slug}/comments/stream`)
       es.onmessage = () => {
-        // 收到新评论事件，重新拉取完整列表
-        fetchComments()
+        // 收到新评论事件，先拉一次，再启动短轮询等 AI 回复
+        fetchComments().then((data) => {
+          const total = (data ?? []).reduce((sum, c) => sum + 1 + c.replies.length, 0)
+          pollForAIReply(total)
+        })
       }
       es.onerror = () => {
         es?.close()
