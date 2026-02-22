@@ -214,6 +214,19 @@
       ],
       "status": "done",
       "dependsOn": ["14"]
+    },
+    {
+      "id": "16",
+      "title": "修复 AI 回复不显示：评论提交后短轮询",
+      "description": "评论提交后启动短轮询（每3秒fetch一次，最多3次），自动捕获AI回复",
+      "steps": [
+        "CommentSection: 添加 pollForAIReply 函数，记录提交前评论总数，轮询对比",
+        "顶级评论提交成功后自动触发轮询",
+        "发现新回复立即停止轮询，3次后也停止",
+        "Playwright 测试验证",
+        "npm run build 通过"
+      ],
+      "status": "pending"
     }
   ]
 }

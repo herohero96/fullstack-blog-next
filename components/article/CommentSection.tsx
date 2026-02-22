@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface Author {
@@ -31,6 +31,7 @@ export default function CommentSection({ slug }: CommentSectionProps) {
   const [replyGuestName, setReplyGuestName] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchComments = useCallback(async () => {
     try {
@@ -38,10 +39,27 @@ export default function CommentSection({ slug }: CommentSectionProps) {
       if (!res.ok) return
       const data = await res.json()
       setComments(data)
+      return data as CommentItem[]
     } finally {
       setLoading(false)
     }
   }, [slug])
+
+  // 提交顶级评论后，短轮询等待 AI 回复
+  const pollForAIReply = useCallback((beforeCount: number) => {
+    if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+    let attempts = 0
+    pollTimerRef.current = setInterval(async () => {
+      attempts++
+      const data = await fetchComments()
+      // 统计所有评论（含回复）总数
+      const totalNow = (data ?? []).reduce((sum: number, c: CommentItem) => sum + 1 + c.replies.length, 0)
+      if (totalNow > beforeCount || attempts >= 3) {
+        if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+        pollTimerRef.current = null
+      }
+    }, 3000)
+  }, [fetchComments])
 
   useEffect(() => {
     fetchComments()
@@ -70,6 +88,7 @@ export default function CommentSection({ slug }: CommentSectionProps) {
     return () => {
       es?.close()
       if (reconnectTimer) clearTimeout(reconnectTimer)
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current)
     }
   }, [slug, fetchComments])
 
@@ -112,6 +131,11 @@ export default function CommentSection({ slug }: CommentSectionProps) {
         setReplyGuestName('')
         setReplyingTo(null)
         await fetchComments()
+        // 顶级评论提交后，短轮询等待 AI 回复
+        if (!parentId) {
+          const totalBefore = comments.reduce((sum, c) => sum + 1 + c.replies.length, 0) + 1 // +1 for the just-submitted comment
+          pollForAIReply(totalBefore)
+        }
       } else {
         const data = await res.json()
         alert(data.message || '评论失败')
