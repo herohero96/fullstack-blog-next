@@ -16,7 +16,6 @@ export default function AIChatWidget() {
   const listRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // 首次访问气泡提示
   useEffect(() => {
     const shown = localStorage.getItem('ai-chat-bubble-shown')
     if (!shown) {
@@ -36,14 +35,6 @@ export default function AIChatWidget() {
   useEffect(() => {
     scrollToBottom()
   }, [messages, scrollToBottom])
-
-  // 自动调整 textarea 高度
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px'
-    }
-  }, [input])
 
   const sendMessage = async () => {
     const text = input.trim()
@@ -104,7 +95,7 @@ export default function AIChatWidget() {
               })
             }
           } catch {
-            // 忽略解析错误
+            // ignore parse errors
           }
         }
       }
@@ -119,11 +110,12 @@ export default function AIChatWidget() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
       e.preventDefault()
       sendMessage()
     }
+    // plain Enter = newline (default textarea behavior)
   }
 
   return (
@@ -141,7 +133,7 @@ export default function AIChatWidget() {
         {!open && (
           <button
             onClick={() => { setOpen(true); setShowBubble(false) }}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-2xl shadow-xl transition-transform duration-200 hover:scale-110"
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 text-2xl shadow-xl transition-transform duration-200 hover:scale-110"
             aria-label="打开 AI 助手"
             data-testid="chat-fab"
           >
@@ -167,9 +159,9 @@ export default function AIChatWidget() {
         }`}
       >
         {/* 标题栏 */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-4 text-white">
+        <div className="flex items-center justify-between bg-blue-600 px-5 py-4 text-white">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🤖</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-lg">🤖</span>
             <span className="font-medium">AI 助手</span>
           </div>
           <div className="flex gap-2">
@@ -195,18 +187,21 @@ export default function AIChatWidget() {
         <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <span className="text-4xl mb-3">🤖</span>
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-3xl mb-3">🤖</span>
               <p className="text-sm">你好，有什么可以帮你的？</p>
               <p className="text-xs mt-1">我了解这个博客的所有文章内容</p>
             </div>
           )}
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {msg.role === 'assistant' && (
+                <span className="mr-2 mt-1 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm">🤖</span>
+              )}
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap leading-relaxed ${
+                className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap leading-relaxed ${
                   msg.role === 'user'
-                    ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-blue-50 border border-blue-100 text-gray-800'
                 }`}
               >
                 {msg.content || (streaming && i === messages.length - 1 ? '...' : '')}
@@ -217,21 +212,22 @@ export default function AIChatWidget() {
 
         {/* 输入区 */}
         <div className="border-t border-gray-200 p-4">
-          <div className="flex gap-2 items-end">
+          <div className="relative">
             <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="输入消息... (Shift+Enter 换行)"
+              placeholder="输入消息... (Ctrl+Enter 发送，Enter 换行)"
               disabled={streaming}
-              rows={1}
-              className="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 disabled:opacity-50"
+              rows={5}
+              className="w-full resize-none rounded-xl border border-gray-300 px-4 py-2.5 pb-10 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 disabled:opacity-50"
             />
             <button
               onClick={sendMessage}
               disabled={streaming || !input.trim()}
-              className="rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 px-5 py-2.5 text-sm text-white disabled:opacity-50 transition-opacity"
+              data-testid="chat-send"
+              className="absolute bottom-2 right-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-1.5 text-sm text-white disabled:opacity-50 transition-colors"
             >
               发送
             </button>

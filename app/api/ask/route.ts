@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { searchSimilarChunks, embedArticle } from '@/lib/embedding'
 import prisma from '@/lib/prisma'
+import { callClaude } from '@/lib/claude'
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,34 +30,19 @@ export async function POST(req: NextRequest) {
     const chunks = await searchSimilarChunks(Number(articleId), question, 3)
     const context = chunks.map((c, i) => `[片段${i + 1}] ${c.chunkText}`).join('\n\n')
 
-    // 调用 Claude API 流式回答
-    const apiBase = process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com'
-    const apiKey = process.env.ANTHROPIC_AUTH_TOKEN || ''
-
-    const claudeRes = await fetch(`${apiBase}/v1/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 1024,
-        stream: true,
-        messages: [
-          {
-            role: 'user',
-            content: `你是一个博客文章问答助手。根据以下文章片段回答用户的问题。如果片段中没有相关信息，请如实说明。
+    const messages = [
+      {
+        role: 'user' as const,
+        content: `你是一个博客文章问答助手。根据以下文章片段回答用户的问题。如果片段中没有相关信息，请如实说明。
 
 文章片段：
 ${context}
 
 用户问题：${question}`,
-          },
-        ],
-      }),
-    })
+      },
+    ]
+
+    const claudeRes = await callClaude(messages, undefined, true, 1024)
 
     if (!claudeRes.ok) {
       const err = await claudeRes.text()

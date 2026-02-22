@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
+import { callClaude } from '@/lib/claude'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -7,8 +8,6 @@ interface ChatMessage {
 }
 
 const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY || ''
-const ANTHROPIC_BASE_URL = process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com'
-const ANTHROPIC_AUTH_TOKEN = process.env.ANTHROPIC_AUTH_TOKEN || ''
 
 async function getQueryEmbedding(text: string): Promise<number[]> {
   const res = await fetch('https://api.voyageai.com/v1/embeddings', {
@@ -74,7 +73,6 @@ async function getArticleGraph(articleIds: number[]) {
 async function buildSystemPrompt(query: string): Promise<string> {
   const baseBio = `你是「何夕的技术博客」的 AI 助手。这个博客主要分享 Claude Code、AI 编程、全栈开发等技术内容。你的任务是基于博客文章内容回答用户问题，推荐相关文章，并提供技术建议。回答简洁明了，语气亲切自然。`
 
-  // 获取所有文章标题列表
   const allArticles = await prisma.article.findMany({
     where: { published: true },
     select: { title: true, slug: true },
@@ -82,7 +80,6 @@ async function buildSystemPrompt(query: string): Promise<string> {
   })
   const titleList = allArticles.map((a) => `- ${a.title}`).join('\n')
 
-  // 尝试向量检索
   let contextSection = ''
   try {
     const embedding = await getQueryEmbedding(query)
@@ -92,32 +89,23 @@ async function buildSystemPrompt(query: string): Promise<string> {
       const articleIds = similar.map((a) => a.id)
       const { relations, concepts } = await getArticleGraph(articleIds)
 
-      // 相关文章全文
       const articlesContext = similar
         .map((a, i) => `### 相关文章 ${i + 1}: ${a.title}\n${a.content}`)
         .join('\n\n---\n\n')
 
-      // 图谱信息
       const prerequisiteInfo = relations
         .filter((r) => r.type === 'PREREQUISITE')
         .map((r) => `「${r.from.title}」是「${r.to.title}」的前置知识`)
       const seriesInfo = relations
         .filter((r) => r.type === 'SERIES')
         .map((r) => `「${r.from.title}」和「${r.to.title}」属于同一系列`)
-      const conceptInfo = concepts
-        .map((c) => `${c.concept.name} (${c.concept.type})`)
+      const conceptInfo = concepts.map((c) => `${c.concept.name} (${c.concept.type})`)
       const uniqueConcepts = [...new Set(conceptInfo)]
 
       let graphSection = ''
-      if (prerequisiteInfo.length > 0) {
-        graphSection += `\n前置知识关系：\n${prerequisiteInfo.join('\n')}`
-      }
-      if (seriesInfo.length > 0) {
-        graphSection += `\n系列文章关系：\n${[...new Set(seriesInfo)].join('\n')}`
-      }
-      if (uniqueConcepts.length > 0) {
-        graphSection += `\n涉及技术概念：${uniqueConcepts.join('、')}`
-      }
+      if (prerequisiteInfo.length > 0) graphSection += `\n前置知识关系：\n${prerequisiteInfo.join('\n')}`
+      if (seriesInfo.length > 0) graphSection += `\n系列文章关系：\n${[...new Set(seriesInfo)].join('\n')}`
+      if (uniqueConcepts.length > 0) graphSection += `\n涉及技术概念：${uniqueConcepts.join('、')}`
 
       contextSection = `\n\n## 与用户问题最相关的文章内容\n\n${articlesContext}\n\n## 知识图谱信息\n${graphSection}`
     }
@@ -143,25 +131,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 取最新一条 user 消息用于检索
     const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user')
     const systemPrompt = await buildSystemPrompt(lastUserMsg?.content || '')
 
-    const claudeRes = await fetch(`${ANTHROPIC_BASE_URL}/v1/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_AUTH_TOKEN,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 2048,
-        stream: true,
-        system: systemPrompt,
-        messages: messages.map((m) => ({ role: m.role, content: m.content })),
-      }),
-    })
+    const claudeRes = await callClaude(messages, systemPrompt, true, 2048)
 
     if (!claudeRes.ok) {
       const err = await claudeRes.text()
