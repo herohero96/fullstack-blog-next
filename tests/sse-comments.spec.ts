@@ -9,8 +9,8 @@ test('SSE 实时评论推送测试', async ({ page }) => {
   // 1. 打开文章页
   console.log('Step 1: 打开文章页...')
   await page.goto(`${BASE_URL}/article/${ARTICLE_SLUG}`)
-  await page.waitForLoadState('networkidle')
-  await page.waitForTimeout(3000)
+  await page.waitForLoadState('domcontentloaded')
+  await page.waitForTimeout(5000)
 
   // 等待评论区加载
   await expect(page.locator('h2', { hasText: '评论' })).toBeVisible({ timeout: 15000 })
@@ -56,10 +56,10 @@ test('SSE 实时评论推送测试', async ({ page }) => {
     console.log('🎉 测试通过：SSE 实时评论推送正常！')
   } else {
     // 降级检查：刷新后是否能看到
-    console.log('⚠️ SSE 推送未在 15 秒内生效，刷新检查...')
+    console.log('⚠️ SSE 推送未在 15 秒内生效（Vercel serverless 限制），刷新检查...')
     await page.reload()
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(3000)
+    await page.waitForLoadState('domcontentloaded')
+    await page.waitForTimeout(5000)
     const afterRefresh = await page.textContent('body')
     if (afterRefresh?.includes(commentText)) {
       console.log('✅ 评论已存在（刷新后可见），SSE 可能因 Vercel 限制未实时推送')

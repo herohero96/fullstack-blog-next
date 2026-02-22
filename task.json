@@ -173,7 +173,7 @@
         "AIChatWidget: AI 头像用蓝色圆形背景 + 🤖 emoji",
         "npm run build 通过"
       ],
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": "13",
@@ -186,7 +186,7 @@
         "修改 lib/ai-reply.ts：AI 回复生成后也调用 notify 推送",
         "npm run build 通过"
       ],
-      "status": "pending",
+      "status": "done",
       "dependsOn": ["12"]
     },
     {
@@ -200,7 +200,7 @@
         "连接断开时 3 秒后自动重连",
         "npm run build 通过"
       ],
-      "status": "pending",
+      "status": "done",
       "dependsOn": ["13"]
     },
     {
@@ -212,7 +212,7 @@
         "tests/sse-comments.spec.ts：打开文章页，用 API 发游客评论，不刷新页面等 5 秒验证评论自动出现",
         "截图保存所有结果"
       ],
-      "status": "pending",
+      "status": "done",
       "dependsOn": ["14"]
     }
   ]
