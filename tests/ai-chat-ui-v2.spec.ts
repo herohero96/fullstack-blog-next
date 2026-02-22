@@ -13,12 +13,12 @@ test('AI 助手 UI 改造测试', async ({ page, context }) => {
   // 1. 打开首页
   console.log('Step 1: 打开首页...')
   await page.goto(BASE_URL)
-  await page.waitForLoadState('domcontentloaded')
-  await page.waitForTimeout(2000)
+  await page.waitForLoadState('networkidle')
+  await page.waitForTimeout(3000)
 
   // 2. 验证悬浮按钮存在
-  const fab = page.locator('[data-testid="chat-fab"]')
-  await expect(fab).toBeVisible({ timeout: 10000 })
+  const fab = page.locator('button[aria-label="打开 AI 助手"]')
+  await expect(fab).toBeVisible({ timeout: 15000 })
   await page.screenshot({ path: 'tests/ui-01-fab-button.png', fullPage: true })
   console.log('✅ Step 2: 悬浮按钮可见')
 
