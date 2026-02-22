@@ -50,7 +50,7 @@ export async function callClaude(
       if (!res.ok) {
         const errText = await res.text()
         // model_not_found → try next model
-        if (res.status === 404 || errText.includes('model_not_found') || errText.includes('not found')) {
+        if (res.status === 404 || errText.includes('model_not_found') || errText.includes('not found') || errText.includes('No healthy provider') || errText.includes('no available')) {
           console.warn(`Model ${model} not found, trying next...`)
           lastError = new Error(`model_not_found: ${model}`)
           continue
