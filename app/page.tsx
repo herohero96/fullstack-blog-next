@@ -104,7 +104,28 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 py-8 flex gap-6">
+        {/* 左侧文章标题列表 */}
+        <aside className="hidden md:block w-56 shrink-0">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-6">
+            <h2 className="text-sm font-semibold text-gray-700 mb-3">文章列表</h2>
+            <ul className="space-y-2">
+              {articles.map((article) => (
+                <li key={article.id}>
+                  <Link
+                    href={`/article/${article.slug}`}
+                    className="text-xs text-gray-600 hover:text-blue-600 line-clamp-2 leading-relaxed block"
+                  >
+                    {article.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+
+        {/* 右侧主内容 */}
+        <div className="flex-1 min-w-0">
         {categories.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             <button
@@ -181,6 +202,7 @@ export default function HomePage() {
             <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
           </>
         )}
+        </div>
       </main>
     </div>
   )
