@@ -52,7 +52,7 @@ export default function AIChatWidget() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: newMessages.filter(m => m.content.trim()) }),
       })
 
       if (!res.ok) {
