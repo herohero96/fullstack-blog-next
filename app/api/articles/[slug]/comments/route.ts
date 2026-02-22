@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { verifyToken, getTokenFromHeader } from '@/lib/auth'
 import { createAIReply } from '@/lib/ai-reply'
+import { notifyCommentSubscribers } from '@/lib/comment-stream'
 
 const authorSelect = { id: true, username: true }
 
@@ -119,6 +120,17 @@ export async function POST(
         author: { select: authorSelect },
         replies: { include: { author: { select: authorSelect } } },
       },
+    })
+
+    // SSE 推送新评论
+    notifyCommentSubscribers(article.id, {
+      id: comment.id,
+      content: comment.content,
+      authorId: comment.authorId,
+      guestName: comment.guestName,
+      parentId: comment.parentId,
+      createdAt: comment.createdAt.toISOString(),
+      author: comment.author,
     })
 
     // 异步触发 AI 自动回复（仅顶级评论，不阻塞响应）

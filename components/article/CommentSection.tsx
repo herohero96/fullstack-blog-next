@@ -47,6 +47,32 @@ export default function CommentSection({ slug }: CommentSectionProps) {
     fetchComments()
   }, [fetchComments])
 
+  // SSE 实时更新
+  useEffect(() => {
+    let es: EventSource | null = null
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+
+    function connect() {
+      es = new EventSource(`/api/articles/${slug}/comments/stream`)
+      es.onmessage = () => {
+        // 收到新评论事件，重新拉取完整列表
+        fetchComments()
+      }
+      es.onerror = () => {
+        es?.close()
+        // 3 秒后自动重连
+        reconnectTimer = setTimeout(connect, 3000)
+      }
+    }
+
+    connect()
+
+    return () => {
+      es?.close()
+      if (reconnectTimer) clearTimeout(reconnectTimer)
+    }
+  }, [slug, fetchComments])
+
   const submitComment = async (text: string, parentId?: number, name?: string) => {
     if (!text.trim()) return
 

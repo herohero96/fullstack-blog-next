@@ -159,6 +159,61 @@
       ],
       "status": "done",
       "dependsOn": ["10"]
+    },
+    {
+      "id": "12",
+      "title": "公共模型切换函数 + AI 助手 UI 统一风格",
+      "description": "创建 lib/claude.ts 公共调用函数，统一 AI 助手 UI 风格",
+      "steps": [
+        "新建 lib/claude.ts，定义模型优先级列表 ['claude-sonnet-4-6', 'claude-sonnet-4-5-20250929', 'gpt-5.3-codex']",
+        "封装 callClaude(messages, systemPrompt, stream) 函数，自动按优先级尝试，model_not_found 时切换下一个",
+        "更新 app/api/chat/route.ts、app/api/ask/route.ts、lib/ai-reply.ts 都改用公共函数",
+        "AIChatWidget: 输入框改为 textarea rows=5，发送按钮移到输入框右下角（relative + absolute），Ctrl+Enter 发送，Enter 换行",
+        "AIChatWidget: 统一蓝色风格 — 标题栏 bg-blue-600，悬浮按钮纯 bg-blue-600，AI 消息 bg-blue-50 border-blue-100，用户消息 bg-blue-600",
+        "AIChatWidget: AI 头像用蓝色圆形背景 + 🤖 emoji",
+        "npm run build 通过"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "13",
+      "title": "评论 SSE 实时推送后端",
+      "description": "创建评论 SSE 接口 + 评论创建时触发推送",
+      "steps": [
+        "新建 lib/comment-stream.ts：全局 Map 维护 articleId → Set of controllers，导出 subscribe/unsubscribe/notify 函数",
+        "新建 app/api/articles/[slug]/comments/stream/route.ts：GET 返回 SSE 流，30 秒心跳 ping",
+        "修改 app/api/articles/[slug]/comments/route.ts：评论创建后调用 notify 推送",
+        "修改 lib/ai-reply.ts：AI 回复生成后也调用 notify 推送",
+        "npm run build 通过"
+      ],
+      "status": "pending",
+      "dependsOn": ["12"]
+    },
+    {
+      "id": "14",
+      "title": "前端 CommentSection SSE 实时更新",
+      "description": "修改 components/article/CommentSection.tsx 用 EventSource 实时接收新评论",
+      "steps": [
+        "用 EventSource 连接 /api/articles/[slug]/comments/stream",
+        "收到新评论事件自动追加到评论列表",
+        "页面卸载时断开连接",
+        "连接断开时 3 秒后自动重连",
+        "npm run build 通过"
+      ],
+      "status": "pending",
+      "dependsOn": ["13"]
+    },
+    {
+      "id": "15",
+      "title": "Playwright 测试 UI + SSE",
+      "description": "编写 Playwright 测试验证 UI 改造和 SSE 实时评论",
+      "steps": [
+        "tests/ai-chat-ui-v3.spec.ts：截图悬浮按钮和抽屉，验证输入框高度 > 100px",
+        "tests/sse-comments.spec.ts：打开文章页，用 API 发游客评论，不刷新页面等 5 秒验证评论自动出现",
+        "截图保存所有结果"
+      ],
+      "status": "pending",
+      "dependsOn": ["14"]
     }
   ]
 }
