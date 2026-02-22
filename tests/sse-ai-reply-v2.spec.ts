@@ -26,11 +26,14 @@ test('评论后短轮询自动显示 AI 回复', async ({ page }) => {
   // 填写昵称和评论
   const nameInput = page.locator('input[placeholder="你的昵称"]')
   if (await nameInput.isVisible()) {
-    await nameInput.fill('轮询测试用户')
+    await nameInput.click()
+    await nameInput.type('轮询测试用户')
   }
   const textarea = page.locator('textarea[placeholder="写下你的评论..."]')
   await expect(textarea).toBeVisible({ timeout: 10000 })
-  await textarea.fill(commentText)
+  await textarea.click()
+  await textarea.type(commentText)
+  await page.waitForTimeout(500)
 
   const submitBtn = page.locator('button', { hasText: '发表评论' })
   await expect(submitBtn).toBeEnabled({ timeout: 5000 })

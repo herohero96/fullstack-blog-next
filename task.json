@@ -226,7 +226,7 @@
         "Playwright 测试验证",
         "npm run build 通过"
       ],
-      "status": "pending"
+      "status": "done"
     }
   ]
 }
