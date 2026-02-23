@@ -143,9 +143,36 @@ export async function POST(req: NextRequest) {
       return created
     })
 
+    // 异步生成 embedding，不阻塞响应
+    if (published) {
+      generateArticleEmbedding(article.id, title, content).catch((e) =>
+        console.error('Failed to generate embedding:', e)
+      )
+    }
+
     return NextResponse.json(transformArticleTags(article), { status: 201 })
   } catch (error) {
     console.error('Failed to create article:', error)
     return NextResponse.json({ message: 'Failed to create article' }, { status: 500 })
   }
+}
+
+async function generateArticleEmbedding(articleId: number, title: string, content: string) {
+  const voyageKey = process.env.VOYAGE_API_KEY
+  if (!voyageKey) return
+
+  const res = await fetch('https://api.voyageai.com/v1/embeddings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${voyageKey}` },
+    body: JSON.stringify({ model: 'voyage-3', input: [`${title}\n\n${content}`], input_type: 'document' }),
+  })
+  if (!res.ok) throw new Error(`Voyage API error: ${res.status}`)
+  const data = await res.json()
+  const embedding: number[] = data.data[0].embedding
+  const vectorStr = `[${embedding.join(',')}]`
+  await prisma.$executeRawUnsafe(
+    'UPDATE "Article" SET embedding = $1::vector WHERE id = $2',
+    vectorStr,
+    articleId
+  )
 }
