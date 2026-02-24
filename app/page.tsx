@@ -75,6 +75,9 @@ export default function HomePage() {
             {isAuthenticated ? (
               <>
                 <span className="text-gray-600">你好，{user?.username}</span>
+                <Link href="/drafts" className="px-3 py-1.5 rounded bg-yellow-500 text-white hover:bg-yellow-600">
+                  草稿箱
+                </Link>
                 <Link href="/create" className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700">
                   写文章
                 </Link>

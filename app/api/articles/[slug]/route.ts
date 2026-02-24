@@ -15,8 +15,18 @@ const transformArticleTags = (article: any) => {
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params
+    const preview = req.nextUrl.searchParams.get('preview') === 'true'
+
+    // 草稿预览需要登录
+    if (preview) {
+      const token = getTokenFromHeader(req)
+      if (!token) return NextResponse.json({ error: '请先登录' }, { status: 401 })
+      const user = verifyToken(token)
+      if (!user) return NextResponse.json({ error: '登录已过期' }, { status: 401 })
+    }
+
     const article = await prisma.article.findUnique({
-      where: { slug },
+      where: { slug, ...(preview ? {} : { published: true }) },
       include: {
         tags: { include: { tag: true } },
         category: true,
