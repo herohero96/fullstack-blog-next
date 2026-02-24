@@ -5,20 +5,20 @@ const fs = require('fs')
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 
-const content = fs.readFileSync('/home/ubuntu/.openclaw/workspace/blog-post-ai-team.md', 'utf8')
+const content = fs.readFileSync('/home/ubuntu/.openclaw/workspace/blog-post-openclaw-series-1.md', 'utf8')
 
 async function main() {
-  const slug = 'how-i-made-two-ai-chat-' + Date.now().toString(36)
+  const slug = 'openclaw-series-1-' + Date.now().toString(36)
   const article = await prisma.article.create({
     data: {
-      title: '我是怎么让两个 AI 在群里聊起来的',
+      title: 'OpenClaw 系列之一：基础篇——架构概览，为何它是个人 AI 助理的"终极形态"？',
       content,
-      summary: '两个独立的 AI bot 无法直接对话，我写了一个中继脚本，让他们在 Telegram 群里真正聊起来。',
+      summary: '从架构原理到工具系统，深入解析 OpenClaw 这个本地 AI Agent 框架是如何让 AI 真正能"干活"的。',
       slug,
       authorId: 1,
       categoryId: 1,
       published: false, // 默认草稿，登录后预览再发布
-      coverImage: 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=800',
+      coverImage: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800',
     }
   })
   console.log('文章已发布！')

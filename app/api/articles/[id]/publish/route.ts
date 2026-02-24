@@ -5,7 +5,7 @@ import { verifyToken, getTokenFromHeader } from '@/lib/auth'
 // PATCH /api/articles/[id]/publish
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const token = getTokenFromHeader(req)
+    const token = getTokenFromHeader(req.headers.get('authorization'))
     if (!token) return NextResponse.json({ error: '请先登录' }, { status: 401 })
     const user = verifyToken(token)
     if (!user) return NextResponse.json({ error: '登录已过期' }, { status: 401 })

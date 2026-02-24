@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
 
     // 草稿预览需要登录
     if (preview) {
-      const token = getTokenFromHeader(req)
+      const token = getTokenFromHeader(req.headers.get('authorization'))
       if (!token) return NextResponse.json({ error: '请先登录' }, { status: 401 })
       const user = verifyToken(token)
       if (!user) return NextResponse.json({ error: '登录已过期' }, { status: 401 })
