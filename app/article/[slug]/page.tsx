@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 import prisma from '@/lib/prisma'
 import LikeButton from '@/components/article/LikeButton'
+import NextArticleLink from '@/components/article/NextArticleLink'
 import CommentSection from '@/components/article/CommentSection'
 import ViewIncrement from '@/components/article/ViewIncrement'
 import ArticleQA from '@/components/article/ArticleQA'
@@ -36,6 +37,12 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   })
 
   if (!rawArticle) return notFound()
+
+  const nextArticle = await prisma.article.findFirst({
+    where: { published: true, createdAt: { gt: rawArticle.createdAt } },
+    orderBy: { createdAt: 'asc' },
+    select: { title: true, slug: true },
+  })
 
   const article = transformArticleTags(rawArticle)
 
@@ -97,6 +104,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
         <div className="mt-8 pt-6 border-t border-gray-200">
           <LikeButton slug={article.slug} />
         </div>
+
+        <NextArticleLink article={nextArticle} />
 
         <ArticleQA articleId={article.id} />
 
