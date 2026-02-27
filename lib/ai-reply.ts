@@ -61,8 +61,8 @@ export async function createAIReply(articleId: number, commentId: number, userCo
     })
     if (!article) return
 
-    // 模拟真人思考和回复延迟：随机 10 - 60 秒
-    const delayMs = Math.floor(Math.random() * 50000) + 10000
+    // 模拟真人思考和回复延迟：随机 2 - 10 秒
+    const delayMs = Math.floor(Math.random() * 8000) + 2000
     console.log(`[AI-Reply] Simulating human delay: ${delayMs}ms`)
     await new Promise((resolve) => setTimeout(resolve, delayMs))
 
